@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime API</title>
+  </head>
+  <body>
+    <h1>Add New Anime</h1>
+    <form id="animeForm">
+      <label for="title">Title:</label><br />
+      <input type="text" id="title" name="title" required /><br /><br />
+
+      <label for="genre">Genre:</label><br />
+      <input type="text" id="genre" name="genre" required /><br /><br />
+
+      <button type="submit">Add Anime</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <script>
+      document
+        .getElementById('animeForm')
+        .addEventListener('submit', async function (event) {
+          event.preventDefault();
+
+          const title = document.getElementById('title').value;
+          const genre = document.getElementById('genre').value;
+
+          const newAnime = {
+            title: title,
+            genre: genre,
+          };
+
+          try {
+            const response = await fetch('http://127.0.0.1:5000/api/anime', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(newAnime),
+            });
+
+            const result = await response.json();
+            document.getElementById('responseMessage').innerText =
+              result.message;
+
+            // Clear the form
+            document.getElementById('animeForm').reset();
+          } catch (error) {
+            document.getElementById('responseMessage').innerText =
+              'Error: ' + error.message;
+          }
+        });
+    </script>
+  </body>
+</html>
