@@ -9,21 +9,42 @@
     <h1>Add New Anime</h1>
     <form id="animeForm">
       <label for="id">ID:</label><br />
-      <input type="text" id="id" name="id" required /><br /><br />
+      <input
+        type="text"
+        id="id"
+        name="id"
+        value="12345"
+        placeholder="Enter anime ID (e.g., 32281)"
+        required
+      /><br /><br />
 
       <label for="animeEnglish">English Title:</label><br />
       <input
         type="text"
         id="animeEnglish"
         name="animeEnglish"
+        value="Test Anime"
+        placeholder="Enter the English title (e.g., Your Name)"
         required
       /><br /><br />
 
       <label for="animeOriginal">Original Title:</label><br />
-      <input type="text" id="animeOriginal" name="animeOriginal" /><br /><br />
+      <input
+        type="text"
+        id="animeOriginal"
+        name="animeOriginal"
+        value="テストアニメ"
+        placeholder="Enter the original title (optional)"
+      /><br /><br />
 
       <label for="genres">Genres (comma-separated):</label><br />
-      <input type="text" id="genres" name="genres" /><br /><br />
+      <input
+        type="text"
+        id="genres"
+        name="genres"
+        value="Action, Fantasy"
+        placeholder="Enter genres (e.g., Drama, Romance)"
+      /><br /><br />
 
       <button type="submit">Add Anime</button>
     </form>
@@ -40,7 +61,10 @@
             id: document.getElementById('id').value,
             animeEnglish: document.getElementById('animeEnglish').value,
             animeOriginal: document.getElementById('animeOriginal').value,
-            genres: document.getElementById('genres').value.split(','),
+            genres: document
+              .getElementById('genres')
+              .value.split(',')
+              .map(g => g.trim()),
           };
 
           try {
@@ -52,14 +76,15 @@
               body: JSON.stringify(newAnime),
             });
 
-            const result = await response.json();
-            if (response.ok) {
-              document.getElementById('responseMessage').innerText =
-                result.message;
-            } else {
+            if (!response.ok) {
+              const errorData = await response.json();
               document.getElementById(
                 'responseMessage'
-              ).innerText = `Error: ${result.error}`;
+              ).innerText = `Error: ${errorData.error}`;
+            } else {
+              const result = await response.json();
+              document.getElementById('responseMessage').innerText =
+                result.message;
             }
           } catch (error) {
             document.getElementById('responseMessage').innerText =

@@ -17,19 +17,25 @@ def get_anime():
 
 @app.route('/api/anime', methods=['POST'])
 def add_anime():
-    new_entry = request.json
-    
-    # Validate fields (optional)
-    if not new_entry or 'id' not in new_entry or 'animeEnglish' not in new_entry:
-        return jsonify({"error": "Invalid data"}), 400
+    try:
+        new_entry = request.json
+        print("Received data:", new_entry)  # Debugging log
 
-    data.append(new_entry)
-    
-    # Save the updated data to the JSON file
-    with open('export.json', 'w') as f:
-        json.dump(data, f, indent=4)
-    
-    return jsonify({"message": "Anime added successfully!"}), 201
+        if not new_entry or 'id' not in new_entry or 'animeEnglish' not in new_entry:
+            return jsonify({"error": "Invalid data"}), 400  # Proper JSON response
+
+        data.append(new_entry)
+
+        with open('export.json', 'w') as f:
+            json.dump(data, f, indent=4)
+
+        return jsonify({"message": "Anime added successfully!"}), 201  # Proper JSON response
+    except Exception as e:
+        print("Error:", e)  # Debugging log
+        return jsonify({"error": str(e)}), 500  # Proper JSON response
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+## Command: curl -X POST http://127.0.0.1:5000/api/anime \ -H "Content-Type: application/json" \ -d '{"id": "12345", "animeEnglish": "Test Anime", "animeOriginal": "テストアニメ", "genres": ["Action", "Fantasy"]}'
