@@ -1,11 +1,21 @@
 from flask import Flask, jsonify, request, render_template
+import os
+import json
 
 app = Flask(__name__)
 
-# Load your JSON data
-import json
-with open('export.json', 'r') as f:
-    data = json.load(f)
+# Set the path for the data file on the persistent volume
+data_file_path = "/data/export.json"
+
+# Ensure the file exists, and load data
+if os.path.exists(data_file_path):
+    with open(data_file_path, 'r') as f:
+        data = json.load(f)
+else:
+    # If the file doesn't exist, create an empty JSON structure
+    data = []
+    with open(data_file_path, 'w') as f:
+        json.dump(data, f, indent=4)
 
 @app.route('/')
 def home():
@@ -26,7 +36,8 @@ def add_anime():
 
         data.append(new_entry)
 
-        with open('export.json', 'w') as f:
+        # Save the updated data to the JSON file
+        with open(data_file_path, 'w') as f:
             json.dump(data, f, indent=4)
 
         return jsonify({"message": "Anime added successfully!"}), 201  # Proper JSON response
@@ -37,5 +48,3 @@ def add_anime():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-## Command: curl -X POST http://127.0.0.1:5000/api/anime \ -H "Content-Type: application/json" \ -d '{"id": "12345", "animeEnglish": "Test Anime", "animeOriginal": "テストアニメ", "genres": ["Action", "Fantasy"]}'
