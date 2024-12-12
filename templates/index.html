@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add New Anime</title>
+  </head>
+  <body>
+    <h1>Add New Anime</h1>
+    <form id="animeForm">
+      <label for="id">ID:</label><br />
+      <input type="text" id="id" name="id" required /><br /><br />
+
+      <label for="animeEnglish">English Title:</label><br />
+      <input
+        type="text"
+        id="animeEnglish"
+        name="animeEnglish"
+        required
+      /><br /><br />
+
+      <label for="animeOriginal">Original Title:</label><br />
+      <input type="text" id="animeOriginal" name="animeOriginal" /><br /><br />
+
+      <label for="genres">Genres (comma-separated):</label><br />
+      <input type="text" id="genres" name="genres" /><br /><br />
+
+      <button type="submit">Add Anime</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <script>
+      document
+        .getElementById('animeForm')
+        .addEventListener('submit', async function (event) {
+          event.preventDefault();
+
+          const newAnime = {
+            id: document.getElementById('id').value,
+            animeEnglish: document.getElementById('animeEnglish').value,
+            animeOriginal: document.getElementById('animeOriginal').value,
+            genres: document.getElementById('genres').value.split(','),
+          };
+
+          try {
+            const response = await fetch('/api/anime', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(newAnime),
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+              document.getElementById('responseMessage').innerText =
+                result.message;
+            } else {
+              document.getElementById(
+                'responseMessage'
+              ).innerText = `Error: ${result.error}`;
+            }
+          } catch (error) {
+            document.getElementById('responseMessage').innerText =
+              'Error: ' + error.message;
+          }
+        });
+    </script>
+  </body>
+</html>
