@@ -18,7 +18,7 @@ except json.JSONDecodeError:
     data = []  # Initialize with an empty list if JSON is invalid
 
 # Set your API key (you can make it an environment variable)
-API_KEY = os.getenv("API_KEY", "default_secure_key")  # Replace with a strong key
+API_KEY = os.getenv("API_KEY", "SkYCKXd3lZwgW7SDZZBcQOkHoCw4ggczeGFAmtbdUeJFTMWua3KYW9RDw36Esppx1c6Kp6wfy0fTh1YdvUTMF5faEyurPItvRwUKrkiZtT8DMO33yiHEppNcusg85dYC")  # Replace with a strong key
 
 def validate_api_key(key):
     """Validate the API key provided in the request."""
