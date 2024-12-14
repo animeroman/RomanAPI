@@ -13,7 +13,6 @@
         type="text"
         id="id"
         name="id"
-        value="12345"
         placeholder="Enter anime ID (e.g., 32281)"
         required
       /><br /><br />
@@ -23,7 +22,6 @@
         type="text"
         id="animeEnglish"
         name="animeEnglish"
-        value="Test Anime"
         placeholder="Enter the English title (e.g., Your Name)"
         required
       /><br /><br />
@@ -33,7 +31,6 @@
         type="text"
         id="animeOriginal"
         name="animeOriginal"
-        value="テストアニメ"
         placeholder="Enter the original title (optional)"
       /><br /><br />
 
@@ -42,10 +39,47 @@
         type="text"
         id="genres"
         name="genres"
-        value="Action, Fantasy"
         placeholder="Enter genres (e.g., Drama, Romance)"
       /><br /><br />
 
+      <h3>Episodes:</h3>
+      <div id="episodes">
+        <div class="episode">
+          <label for="episodeNumber">Episode Number:</label>
+          <input
+            type="text"
+            class="episodeNumber"
+            placeholder="1"
+            required
+          /><br /><br />
+          <label for="dubServer1">Dub Server 1:</label>
+          <input
+            type="text"
+            class="dubServer1"
+            placeholder="https://example.com/dub1"
+          /><br /><br />
+          <label for="dubServer2">Dub Server 2:</label>
+          <input
+            type="text"
+            class="dubServer2"
+            placeholder="https://example.com/dub2"
+          /><br /><br />
+          <label for="subServer1">Sub Server 1:</label>
+          <input
+            type="text"
+            class="subServer1"
+            placeholder="https://example.com/sub1"
+          /><br /><br />
+          <label for="subServer2">Sub Server 2:</label>
+          <input
+            type="text"
+            class="subServer2"
+            placeholder="https://example.com/sub2"
+          /><br /><br />
+        </div>
+      </div>
+      <button type="button" id="addEpisode">Add Another Episode</button
+      ><br /><br />
       <button type="submit">Add Anime</button>
     </form>
 
@@ -53,9 +87,30 @@
 
     <script>
       document
+        .getElementById('addEpisode')
+        .addEventListener('click', function () {
+          const episodesDiv = document.getElementById('episodes');
+          const newEpisode = document.querySelector('.episode').cloneNode(true);
+          newEpisode
+            .querySelectorAll('input')
+            .forEach(input => (input.value = ''));
+          episodesDiv.appendChild(newEpisode);
+        });
+
+      document
         .getElementById('animeForm')
         .addEventListener('submit', async function (event) {
           event.preventDefault();
+
+          const episodes = Array.from(
+            document.querySelectorAll('.episode')
+          ).map(episode => ({
+            episodeNumber: episode.querySelector('.episodeNumber').value,
+            dubServer1: episode.querySelector('.dubServer1').value,
+            dubServer2: episode.querySelector('.dubServer2').value,
+            subServer1: episode.querySelector('.subServer1').value,
+            subServer2: episode.querySelector('.subServer2').value,
+          }));
 
           const newAnime = {
             id: document.getElementById('id').value,
@@ -65,6 +120,7 @@
               .getElementById('genres')
               .value.split(',')
               .map(g => g.trim()),
+            episodes,
           };
 
           try {
@@ -76,15 +132,14 @@
               body: JSON.stringify(newAnime),
             });
 
-            if (!response.ok) {
-              const errorData = await response.json();
-              document.getElementById(
-                'responseMessage'
-              ).innerText = `Error: ${errorData.error}`;
-            } else {
-              const result = await response.json();
+            const result = await response.json();
+            if (response.ok) {
               document.getElementById('responseMessage').innerText =
                 result.message;
+            } else {
+              document.getElementById(
+                'responseMessage'
+              ).innerText = `Error: ${result.error}`;
             }
           } catch (error) {
             document.getElementById('responseMessage').innerText =
