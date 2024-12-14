@@ -6,40 +6,15 @@
     <title>Add New Anime</title>
   </head>
   <body>
-    <h1>Add New Anime</h1>
-    <form id="animeForm">
-      <label for="id">ID:</label><br />
+    <h1>Update Anime Episodes</h1>
+    <form id="updateForm">
+      <label for="id">Anime ID:</label><br />
       <input
         type="text"
         id="id"
         name="id"
         placeholder="Enter anime ID (e.g., 32281)"
         required
-      /><br /><br />
-
-      <label for="animeEnglish">English Title:</label><br />
-      <input
-        type="text"
-        id="animeEnglish"
-        name="animeEnglish"
-        placeholder="Enter the English title (e.g., Your Name)"
-        required
-      /><br /><br />
-
-      <label for="animeOriginal">Original Title:</label><br />
-      <input
-        type="text"
-        id="animeOriginal"
-        name="animeOriginal"
-        placeholder="Enter the original title (optional)"
-      /><br /><br />
-
-      <label for="genres">Genres (comma-separated):</label><br />
-      <input
-        type="text"
-        id="genres"
-        name="genres"
-        placeholder="Enter genres (e.g., Drama, Romance)"
       /><br /><br />
 
       <h3>Episodes:</h3>
@@ -80,7 +55,7 @@
       </div>
       <button type="button" id="addEpisode">Add Another Episode</button
       ><br /><br />
-      <button type="submit">Add Anime</button>
+      <button type="submit">Update Episodes</button>
     </form>
 
     <p id="responseMessage"></p>
@@ -98,7 +73,7 @@
         });
 
       document
-        .getElementById('animeForm')
+        .getElementById('updateForm')
         .addEventListener('submit', async function (event) {
           event.preventDefault();
 
@@ -112,24 +87,18 @@
             subServer2: episode.querySelector('.subServer2').value,
           }));
 
-          const newAnime = {
+          const updateData = {
             id: document.getElementById('id').value,
-            animeEnglish: document.getElementById('animeEnglish').value,
-            animeOriginal: document.getElementById('animeOriginal').value,
-            genres: document
-              .getElementById('genres')
-              .value.split(',')
-              .map(g => g.trim()),
             episodes,
           };
 
           try {
-            const response = await fetch('/api/anime', {
-              method: 'POST',
+            const response = await fetch('/api/anime/update', {
+              method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(newAnime),
+              body: JSON.stringify(updateData),
             });
 
             const result = await response.json();
