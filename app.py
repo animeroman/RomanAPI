@@ -31,7 +31,7 @@ def home():
 @app.route('/api/anime', methods=['GET'])
 def get_anime():
     # Validate API key
-    api_key = request.headers.get("SkYCKXd3lZwgW7SDZZBcQOkHoCw4ggczeGFAmtbdUeJFTMWua3KYW9RDw36Esppx1c6Kp6wfy0fTh1YdvUTMF5faEyurPItvRwUKrkiZtT8DMO33yiHEppNcusg85dYC")
+    api_key = request.headers.get("x-api-key")  # Corrected header name
     if not api_key or not validate_api_key(api_key):
         return jsonify({"error": "Unauthorized"}), 401
 
@@ -40,7 +40,7 @@ def get_anime():
 @app.route('/api/anime', methods=['POST'])
 def add_anime():
     # Validate API key
-    api_key = request.headers.get("SkYCKXd3lZwgW7SDZZBcQOkHoCw4ggczeGFAmtbdUeJFTMWua3KYW9RDw36Esppx1c6Kp6wfy0fTh1YdvUTMF5faEyurPItvRwUKrkiZtT8DMO33yiHEppNcusg85dYC")
+    api_key = request.headers.get("x-api-key")
     if not api_key or not validate_api_key(api_key):
         return jsonify({"error": "Unauthorized"}), 401
 
@@ -71,7 +71,7 @@ def add_anime():
 @app.route('/api/anime/update', methods=['PUT'])
 def update_anime():
     # Validate API key
-    api_key = request.headers.get("SkYCKXd3lZwgW7SDZZBcQOkHoCw4ggczeGFAmtbdUeJFTMWua3KYW9RDw36Esppx1c6Kp6wfy0fTh1YdvUTMF5faEyurPItvRwUKrkiZtT8DMO33yiHEppNcusg85dYC")
+    api_key = request.headers.get("x-api-key")
     if not api_key or not validate_api_key(api_key):
         return jsonify({"error": "Unauthorized"}), 401
 
@@ -98,7 +98,7 @@ def update_anime():
         with open('export.json', 'w') as f:
             json.dump(data, f, indent=4)
 
-        return jsonify({"message": "Episodes updated successfully!!"}), 200
+        return jsonify({"message": "Episodes updated successfully!"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
