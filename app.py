@@ -74,9 +74,10 @@ def update_anime():
         with open('export.json', 'w') as f:
             json.dump(data, f, indent=4)
 
-        return jsonify({"message": "Episodes updated successfully!"}), 200
+        return jsonify({"message": "Episodes successfully updated!"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
+
