@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for romanapi-adpiza on 2024-12-12T08:32:29Z
+# fly.toml app configuration file generated for apiromanlast on 2024-12-12T08:32:29Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'romanapi-adpiza'
-primary_region = 'fra'
+app = 'apiromanlast'
+primary_region = 'AMS'
 
 [build]
 
