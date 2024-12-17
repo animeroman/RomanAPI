@@ -3,8 +3,8 @@ from flask_cors import CORS
 import json
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": ["http://127.0.0.1:5000", "http://127.0.0.1:8080", "https://apiromanlast.fly.dev"]}})  # Enable CORS
-
+# Enable CORS with specific origins
+CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5000", "http://127.0.0.1:8080", "https://apiromanlast.fly.dev"])
 
 # Load your JSON data
 with open('export.json', 'r') as f:
@@ -42,7 +42,7 @@ def add_anime():
     except Exception as e:
         print("Error:", e)  # Debugging log
         return jsonify({"error": str(e)}), 500
-    
+
 @app.route('/api/anime/update', methods=['PUT'])
 def update_anime():
     try:
@@ -75,6 +75,26 @@ def update_anime():
         print("Error:", e)  # Debugging log
         return jsonify({"error": str(e)}), 500
 
+# Handle preflight OPTIONS requests for CORS
+@app.route('/api/<path:path>', methods=['OPTIONS'])
+def handle_options(path):
+    response = jsonify({"message": "Preflight handled"})
+    response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin'))
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
+
+@app.after_request
+def after_request(response):
+    """
+    Add CORS headers to every response for debugging and validation purposes.
+    """
+    origin = request.headers.get('Origin')
+    if origin:
+        response.headers.add('Access-Control-Allow-Origin', origin)
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True)
