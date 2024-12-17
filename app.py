@@ -1,18 +1,13 @@
 from flask import Flask, jsonify, request, render_template
-from flask_cors import CORS  # Import CORS for cross-origin requests
+from flask_cors import CORS
 import json
 
 app = Flask(__name__)
-
-# Enable CORS for all routes
-CORS(app)
+CORS(app)  # Enable CORS
 
 # Load your JSON data
-try:
-    with open('export.json', 'r') as f:
-        data = json.load(f)
-except (FileNotFoundError, json.JSONDecodeError):
-    data = []  # Initialize with an empty list if file not found or invalid
+with open('export.json', 'r') as f:
+    data = json.load(f)
 
 @app.route('/')
 def home():
@@ -26,32 +21,30 @@ def get_anime():
 def add_anime():
     try:
         new_entry = request.json
-        print("Received data:", new_entry)  # Debugging log
+        print("Received data:", new_entry)
 
         if not new_entry or 'id' not in new_entry or 'animeEnglish' not in new_entry:
-            return jsonify({"error": "Invalid data"}), 400  # Proper JSON response
+            return jsonify({"error": "Invalid data"}), 400
 
-        # Validate episodes
         if 'episodes' in new_entry:
             for episode in new_entry['episodes']:
                 if 'episodeNumber' not in episode:
                     return jsonify({"error": "Episode data is incomplete"}), 400
 
-        # Append and save
         data.append(new_entry)
         with open('export.json', 'w') as f:
             json.dump(data, f, indent=4)
 
         return jsonify({"message": "Anime added successfully!"}), 201
     except Exception as e:
-        print("Error:", e)  # Debugging log
+        print("Error:", e)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/anime/update', methods=['PUT'])
 def update_anime():
     try:
         update_data = request.json
-        print("Received update data:", update_data)  # Debugging log
+        print("Received update data:", update_data)
 
         if not update_data or 'id' not in update_data or 'episodes' not in update_data:
             return jsonify({"error": "Invalid data"}), 400
@@ -59,7 +52,6 @@ def update_anime():
         anime_id = update_data['id']
         episodes = update_data['episodes']
 
-        # Find the anime by ID and update episodes
         anime_found = False
         for anime in data:
             if anime['id'] == anime_id:
@@ -70,13 +62,12 @@ def update_anime():
         if not anime_found:
             return jsonify({"error": "Anime ID not found"}), 404
 
-        # Save updated data back to JSON
         with open('export.json', 'w') as f:
             json.dump(data, f, indent=4)
 
         return jsonify({"message": "Episodes updated successfully!"}), 200
     except Exception as e:
-        print("Error:", e)  # Debugging log
+        print("Error:", e)
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
