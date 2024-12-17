@@ -3,7 +3,7 @@ from flask_cors import CORS
 import json
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": ["http://127.0.0.1:5000", "https://apiromanlast.fly.dev"]}})  # Enable CORS
+CORS(app, resources={r"/api/*": {"origins": ["http://127.0.0.1:5000", "http://127.0.0.1:8080", "https://apiromanlast.fly.dev"]}})  # Enable CORS
 
 
 # Load your JSON data
