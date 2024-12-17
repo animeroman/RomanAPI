@@ -5,24 +5,15 @@ import os
 
 app = Flask(__name__)
 
-# Enable CORS for all routes
-CORS(app)
+# Enable CORS for all routes, allowing any origin
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Load your JSON data
+# Load JSON data
 try:
     with open('export.json', 'r') as f:
         data = json.load(f)
-except FileNotFoundError:
-    data = []  # Initialize with an empty list if file not found
-except json.JSONDecodeError:
-    data = []  # Initialize with an empty list if JSON is invalid
-
-# Set your API key (you can make it an environment variable)
-API_KEY = os.getenv("API_KEY", "SkYCKXd3lZwgW7SDZZBcQOkHoCw4ggczeGFAmtbdUeJFTMWua3KYW9RDw36Esppx1c6Kp6wfy0fTh1YdvUTMF5faEyurPItvRwUKrkiZtT8DMO33yiHEppNcusg85dYC")  # Replace with a strong key
-
-def validate_api_key(key):
-    """Validate the API key provided in the request."""
-    return key == API_KEY
+except (FileNotFoundError, json.JSONDecodeError):
+    data = []  # Initialize with an empty list if file not found or invalid
 
 @app.route('/')
 def home():
@@ -30,20 +21,10 @@ def home():
 
 @app.route('/api/anime', methods=['GET'])
 def get_anime():
-    # Validate API key
-    api_key = request.headers.get("x-api-key")  # Corrected header name
-    if not api_key or not validate_api_key(api_key):
-        return jsonify({"error": "Unauthorized"}), 401
-
     return jsonify(data)
 
 @app.route('/api/anime', methods=['POST'])
 def add_anime():
-    # Validate API key
-    api_key = request.headers.get("x-api-key")
-    if not api_key or not validate_api_key(api_key):
-        return jsonify({"error": "Unauthorized"}), 401
-
     try:
         new_entry = request.json
         if not new_entry or 'id' not in new_entry or 'animeEnglish' not in new_entry:
@@ -70,11 +51,6 @@ def add_anime():
 
 @app.route('/api/anime/update', methods=['PUT'])
 def update_anime():
-    # Validate API key
-    api_key = request.headers.get("x-api-key")
-    if not api_key or not validate_api_key(api_key):
-        return jsonify({"error": "Unauthorized"}), 401
-
     try:
         update_data = request.json
         if not update_data or 'id' not in update_data or 'episodes' not in update_data:
@@ -104,3 +80,4 @@ def update_anime():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
