@@ -1,11 +1,18 @@
 from flask import Flask, jsonify, request, render_template
+from flask_cors import CORS  # Import CORS for cross-origin requests
 import json
 
 app = Flask(__name__)
 
+# Enable CORS for all routes
+CORS(app)
+
 # Load your JSON data
-with open('export.json', 'r') as f:
-    data = json.load(f)
+try:
+    with open('export.json', 'r') as f:
+        data = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    data = []  # Initialize with an empty list if file not found or invalid
 
 @app.route('/')
 def home():
@@ -39,7 +46,7 @@ def add_anime():
     except Exception as e:
         print("Error:", e)  # Debugging log
         return jsonify({"error": str(e)}), 500
-    
+
 @app.route('/api/anime/update', methods=['PUT'])
 def update_anime():
     try:
@@ -71,7 +78,6 @@ def update_anime():
     except Exception as e:
         print("Error:", e)  # Debugging log
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)
