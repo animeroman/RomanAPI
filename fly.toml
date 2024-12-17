@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for romanapi on 2024-12-14T12:50:10Z
+# fly.toml app configuration file generated for apiroman on 2024-12-17T04:18:47Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'romanapi'
-primary_region = 'fra'
+app = 'apiroman'
+primary_region = 'ams'
 
 [build]
 
