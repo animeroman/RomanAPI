@@ -25,7 +25,7 @@ def add_anime():
         print("Received data:", new_entry)  # Debugging log
 
         if not new_entry or 'id' not in new_entry or 'animeEnglish' not in new_entry:
-            return jsonify({"error": "Invalid data"}), 400  # Proper JSON response
+            return jsonify({"error": "Invalid data"}), 400
 
         # Validate episodes
         if 'episodes' in new_entry:
@@ -49,31 +49,53 @@ def update_anime():
         update_data = request.json
         print("Received update data:", update_data)  # Debugging log
 
+        # Validate the incoming data
         if not update_data or 'id' not in update_data or 'episodes' not in update_data:
             return jsonify({"error": "Invalid data"}), 400
 
         anime_id = update_data['id']
-        episodes = update_data['episodes']
+        new_episodes = update_data['episodes']
 
-        # Find the anime by ID and update episodes
-        anime_found = False
-        for anime in data:
-            if anime['id'] == anime_id:
-                anime['episodes'] = episodes
-                anime_found = True
-                break
-
-        if not anime_found:
+        # Find the anime by ID
+        anime = next((anime for anime in data if anime['id'] == anime_id), None)
+        if not anime:
             return jsonify({"error": "Anime ID not found"}), 404
 
-        # Save updated data back to JSON
+        # Process new episodes
+        existing_episodes = anime.get('episodes', [])
+        for new_episode in new_episodes:
+            episode_number = new_episode.get('episodeNumber')
+            if not episode_number:
+                continue
+
+            # Check if episode exists
+            existing_episode = next(
+                (ep for ep in existing_episodes if ep['episodeNumber'] == episode_number),
+                None
+            )
+
+            if existing_episode:
+                # Update existing episode
+                for key, value in new_episode.items():
+                    if value is not None:  # Only update non-None fields
+                        existing_episode[key] = value
+            else:
+                # Add new episode
+                existing_episodes.append(new_episode)
+
+        # Update the anime's episodes
+        anime['episodes'] = existing_episodes
+
+        # Save the updated data to the JSON file
         with open('export.json', 'w') as f:
             json.dump(data, f, indent=4)
 
         return jsonify({"message": "Episodes updated successfully!"}), 200
+
     except Exception as e:
         print("Error:", e)  # Debugging log
         return jsonify({"error": str(e)}), 500
+
 
 # Handle preflight OPTIONS requests for CORS
 @app.route('/api/<path:path>', methods=['OPTIONS'])

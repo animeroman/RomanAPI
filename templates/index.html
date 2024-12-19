@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add New Anime</title>
+    <title>Update Anime Episodes</title>
   </head>
   <body>
     <h1>Update Anime Episodes</h1>
@@ -29,32 +29,32 @@
           /><br /><br />
           <label for="dubServer1">Dub Server 1:</label>
           <input
-            type="text"
+            type="url"
             class="dubServer1"
             placeholder="https://example.com/dub1"
           /><br /><br />
           <label for="dubServer2">Dub Server 2:</label>
           <input
-            type="text"
+            type="url"
             class="dubServer2"
             placeholder="https://example.com/dub2"
           /><br /><br />
           <label for="subServer1">Sub Server 1:</label>
           <input
-            type="text"
+            type="url"
             class="subServer1"
             placeholder="https://example.com/sub1"
           /><br /><br />
           <label for="subServer2">Sub Server 2:</label>
           <input
-            type="text"
+            type="url"
             class="subServer2"
             placeholder="https://example.com/sub2"
           /><br /><br />
         </div>
       </div>
-      <button type="button" id="addEpisode">Add Another Episode</button
-      ><br /><br />
+      <button type="button" id="addEpisode">Add Another Episode</button>
+      <br /><br />
       <button type="submit">Update Episodes</button>
     </form>
 
@@ -66,6 +66,8 @@
         .addEventListener('click', function () {
           const episodesDiv = document.getElementById('episodes');
           const newEpisode = document.querySelector('.episode').cloneNode(true);
+
+          // Reset all input fields in the cloned episode
           newEpisode
             .querySelectorAll('input')
             .forEach(input => (input.value = ''));
@@ -77,18 +79,35 @@
         .addEventListener('submit', async function (event) {
           event.preventDefault();
 
+          // Extract data from the form
           const episodes = Array.from(
             document.querySelectorAll('.episode')
-          ).map(episode => ({
-            episodeNumber: episode.querySelector('.episodeNumber').value,
-            dubServer1: episode.querySelector('.dubServer1').value,
-            dubServer2: episode.querySelector('.dubServer2').value,
-            subServer1: episode.querySelector('.subServer1').value,
-            subServer2: episode.querySelector('.subServer2').value,
-          }));
+          ).map(episode => {
+            const episodeNumber = episode.querySelector('.episodeNumber').value;
+            const dubServer1 = episode.querySelector('.dubServer1').value;
+            const dubServer2 = episode.querySelector('.dubServer2').value;
+            const subServer1 = episode.querySelector('.subServer1').value;
+            const subServer2 = episode.querySelector('.subServer2').value;
+
+            // Ensure proper structure
+            return {
+              episodeNumber: parseInt(episodeNumber, 10) || null,
+              dubServer1: dubServer1.trim() || null,
+              dubServer2: dubServer2.trim() || null,
+              subServer1: subServer1.trim() || null,
+              subServer2: subServer2.trim() || null,
+            };
+          });
+
+          // Validate that all episode numbers are valid
+          if (episodes.some(ep => ep.episodeNumber === null)) {
+            document.getElementById('responseMessage').innerText =
+              'Error: Invalid episode numbers.';
+            return;
+          }
 
           const updateData = {
-            id: document.getElementById('id').value,
+            id: document.getElementById('id').value.trim(),
             episodes,
           };
 
