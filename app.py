@@ -5,7 +5,7 @@ from functools import wraps  # Import wraps to preserve original function names
 
 app = Flask(__name__)
 # Enable CORS with specific origins
-CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5000", "http://127.0.0.1:8080", "https://apiromanlast.fly.dev"])
+CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5000", "http://127.0.0.1:8080", "https://apiromanlast.fly.dev"], methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
 # Load your JSON data
 with open('export.json', 'r') as f:
@@ -130,14 +130,14 @@ def handle_options(path):
 
 @app.after_request
 def after_request(response):
-    """
-    Add CORS headers to every response for debugging and validation purposes.
-    """
     origin = request.headers.get('Origin')
     if origin:
         response.headers.add('Access-Control-Allow-Origin', origin)
         response.headers.add('Access-Control-Allow-Credentials', 'true')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     return response
+
 
 if __name__ == '__main__':
     app.run(debug=True)
