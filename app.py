@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 import json
+from functools import wraps  # Import wraps to preserve original function names
 
 app = Flask(__name__)
 # Enable CORS with specific origins
@@ -10,19 +11,38 @@ CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5000", "http://1
 with open('export.json', 'r') as f:
     data = json.load(f)
 
+# Define the API key
+API_KEY = "SkYCKXd3lZwgW7SDZZBcQOkHoCw4ggczeGFAmtbdUeJFTMWua3KYW9RDw36Esppx1c6Kp6wfy0fTh1YdvUTMF5faEyurPItvRwUKrkiZtT8DMO33yiHEppNcusg85dYC"
+
+def require_api_key(f):
+    """
+    Decorator to require an API key for a route.
+    """
+    @wraps(f)  # Use wraps to preserve the original function's name
+    def decorated_function(*args, **kwargs):
+        # Retrieve the Authorization header
+        api_key = request.headers.get("Authorization")
+        print("Received API Key:", api_key)  # Debugging: Log received API key
+        if not api_key or api_key != f"Bearer {API_KEY}":
+            return jsonify({"error": "Unauthorized access, invalid API key"}), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/')
 def home():
     return render_template('index.html')
 
 @app.route('/api/anime', methods=['GET'])
 def get_anime():
+    print("Headers received for /api/anime:", request.headers)  # Debugging: Log headers
     return jsonify(data)
 
 @app.route('/api/anime', methods=['POST'])
+@require_api_key
 def add_anime():
     try:
         new_entry = request.json
-        print("Received data:", new_entry)  # Debugging log
+        print("Received data for POST /api/anime:", new_entry)  # Debugging log
 
         if not new_entry or 'id' not in new_entry or 'animeEnglish' not in new_entry:
             return jsonify({"error": "Invalid data"}), 400
@@ -40,14 +60,15 @@ def add_anime():
 
         return jsonify({"message": "Anime added successfully!"}), 201
     except Exception as e:
-        print("Error:", e)  # Debugging log
+        print("Error in POST /api/anime:", e)  # Debugging log
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/anime/update', methods=['PUT'])
+@require_api_key
 def update_anime():
     try:
         update_data = request.json
-        print("Received update data:", update_data)  # Debugging log
+        print("Received data for PUT /api/anime/update:", update_data)  # Debugging log
 
         # Validate the incoming data
         if not update_data or 'id' not in update_data or 'episodes' not in update_data:
@@ -77,7 +98,7 @@ def update_anime():
             if existing_episode:
                 # Update existing episode
                 for key, value in new_episode.items():
-                    if value is not None:  # Only update non-None fields
+                    if value is not None:
                         existing_episode[key] = value
             else:
                 # Add new episode
@@ -93,7 +114,7 @@ def update_anime():
         return jsonify({"message": "Episodes updated successfully!"}), 200
 
     except Exception as e:
-        print("Error:", e)  # Debugging log
+        print("Error in PUT /api/anime/update:", e)  # Debugging log
         return jsonify({"error": str(e)}), 500
 
 

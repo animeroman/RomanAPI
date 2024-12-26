@@ -7,108 +7,97 @@
   </head>
   <body>
     <h1>Update Anime Episodes</h1>
-    <form id="updateForm">
-      <label for="id">Anime ID:</label><br />
-      <input
-        type="text"
-        id="id"
-        name="id"
-        placeholder="Enter anime ID (e.g., 32281)"
-        required
-      /><br /><br />
-
-      <h3>Episodes:</h3>
-      <div id="episodes">
-        <div class="episode">
-          <label for="episodeNumber">Episode Number:</label>
-          <input
-            type="text"
-            class="episodeNumber"
-            placeholder="1"
-            required
-          /><br /><br />
-          <label for="dubServer1">Dub Server 1:</label>
-          <input
-            type="url"
-            class="dubServer1"
-            placeholder="https://example.com/dub1"
-          /><br /><br />
-          <label for="dubServer2">Dub Server 2:</label>
-          <input
-            type="url"
-            class="dubServer2"
-            placeholder="https://example.com/dub2"
-          /><br /><br />
-          <label for="subServer1">Sub Server 1:</label>
-          <input
-            type="url"
-            class="subServer1"
-            placeholder="https://example.com/sub1"
-          /><br /><br />
-          <label for="subServer2">Sub Server 2:</label>
-          <input
-            type="url"
-            class="subServer2"
-            placeholder="https://example.com/sub2"
-          /><br /><br />
+    <div
+      class="modal fade premodal premodal-characters"
+      id="modalcharacters"
+      tabindex="-1"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-left">
+              Embed link required (Episode 1, sub. video 1)
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div
+              class="alert alert-danger mb-3"
+              id="link-error"
+              style="display: none"
+            ></div>
+            <form id="updateForm" class="preform" method="post">
+              <div class="form-group">
+                <label class="prelabel" for="link-sub1">
+                  Add link (YouTube, Drive, Vimeo, etc.)
+                </label>
+                <input
+                  type="url"
+                  class="form-control"
+                  id="link-sub1"
+                  placeholder="https://example.com"
+                  name="link"
+                  anime-id="516"
+                  episode="10"
+                  server="dubServer2"
+                  required=""
+                />
+              </div>
+              <div class="form-group link-btn mb-0">
+                <button class="btn btn-primary btn-block">Submit</button>
+                <div class="loading-relative" style="display: none">
+                  <div class="loading">
+                    <div class="span1"></div>
+                    <div class="span2"></div>
+                    <div class="span3"></div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-      <button type="button" id="addEpisode">Add Another Episode</button>
-      <br /><br />
-      <button type="submit">Update Episodes</button>
-    </form>
+    </div>
 
     <p id="responseMessage"></p>
 
     <script>
       document
-        .getElementById('addEpisode')
-        .addEventListener('click', function () {
-          const episodesDiv = document.getElementById('episodes');
-          const newEpisode = document.querySelector('.episode').cloneNode(true);
-
-          // Reset all input fields in the cloned episode
-          newEpisode
-            .querySelectorAll('input')
-            .forEach(input => (input.value = ''));
-          episodesDiv.appendChild(newEpisode);
-        });
-
-      document
         .getElementById('updateForm')
         .addEventListener('submit', async function (event) {
           event.preventDefault();
 
-          // Extract data from the form
-          const episodes = Array.from(
-            document.querySelectorAll('.episode')
-          ).map(episode => {
-            const episodeNumber = episode.querySelector('.episodeNumber').value;
-            const dubServer1 = episode.querySelector('.dubServer1').value;
-            const dubServer2 = episode.querySelector('.dubServer2').value;
-            const subServer1 = episode.querySelector('.subServer1').value;
-            const subServer2 = episode.querySelector('.subServer2').value;
+          // Extract data from the input element
+          const linkInput = document.getElementById('link-sub1');
+          const animeId = linkInput.getAttribute('anime-id');
+          const episodeNumber = parseInt(linkInput.getAttribute('episode'), 10);
+          const server = linkInput.getAttribute('server');
+          const linkValue = linkInput.value.trim();
 
-            // Ensure proper structure
-            return {
-              episodeNumber: parseInt(episodeNumber, 10) || null,
-              dubServer1: dubServer1.trim() || null,
-              dubServer2: dubServer2.trim() || null,
-              subServer1: subServer1.trim() || null,
-              subServer2: subServer2.trim() || null,
-            };
-          });
-
-          // Validate that all episode numbers are valid
-          if (episodes.some(ep => ep.episodeNumber === null)) {
+          // Validate inputs
+          if (!animeId || isNaN(episodeNumber) || !server || !linkValue) {
             document.getElementById('responseMessage').innerText =
-              'Error: Invalid episode numbers.';
+              'Error: Please fill in all fields.';
             return;
           }
 
           const updateData = {
-            id: document.getElementById('id').value.trim(),
-            episodes,
+            id: animeId,
+            episodes: [
+              {
+                episodeNumber,
+                [server]: linkValue,
+              },
+            ],
           };
 
           try {
@@ -116,6 +105,8 @@
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',
+                Authorization:
+                  'Bearer SkYCKXd3lZwgW7SDZZBcQOkHoCw4ggczeGFAmtbdUeJFTMWua3KYW9RDw36Esppx1c6Kp6wfy0fTh1YdvUTMF5faEyurPItvRwUKrkiZtT8DMO33yiHEppNcusg85dYC',
               },
               body: JSON.stringify(updateData),
             });
